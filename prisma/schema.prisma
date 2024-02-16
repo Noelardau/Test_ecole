@@ -1,0 +1,75 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+
+model User {
+  id       Int      @id @default(autoincrement())
+  username String
+  password String
+  // Autres champs d'utilisateur
+  schools  School[]
+}
+
+model School {
+  id      Int     @id @default(autoincrement())
+  name    String
+  address String
+  ownerId Int
+  // Autres champs d'école
+  owner   User    @relation(fields: [ownerId], references: [id])
+  classes  Class[]
+}
+
+model Student {
+  id       Int     @id @default(autoincrement())
+  firstName String
+  lastName  String
+  age       Int
+  // Autres champs d'élève
+  enrollments Enrollment[]
+}
+
+model Class {
+  id       Int      @id @default(autoincrement())
+  name     String
+  schoolId Int
+  // Autres champs de classe
+  school   School  @relation(fields: [schoolId], references: [id])
+  enrollments Enrollment[]
+}
+
+model AcademicYear {
+  id          Int     @id @default(autoincrement())
+  year        String
+  enrollments Enrollment[]
+}
+
+model Enrollment {
+  id            Int           @id @default(autoincrement())
+  studentId     Int
+  classId       Int
+  academicYearId Int
+  student       Student       @relation(fields: [studentId], references: [id])
+  class         Class         @relation(fields: [classId], references: [id])
+  academicYear  AcademicYear  @relation(fields: [academicYearId], references: [id])
+}
+
+
+// In this updated model:
+
+// - Each `Student` can have multiple `Enrollment` entities, represented by the `enrollments` field in the `Student` model.
+// - Each `Class` can have multiple `Enrollment` entities, represented by the `enrollments` field in the `Class` model.
+// - Each `AcademicYear` can have multiple `Enrollment` entities, represented by the `enrollments` field in the `AcademicYear` model.
+// - Each `Enrollment` is associated with one `Student`, one `Class`, and one `AcademicYear`.
+
+// This setup ensures that each student can be associated with only one class per academic year, and can change classes in the next academic year.
